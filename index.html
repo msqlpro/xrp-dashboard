@@ -62,64 +62,6 @@
             <button onclick="applyManual()" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded">Apply</button>
         </div>
 
-        <!-- LIVE HEADER STATS -->
-        <div class="bg-gradient-to-r from-green-900/50 to-blue-900/50 border border-green-500/50 rounded-lg p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-center">📊 Live XRP ETF Data</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="bg-gray-800/80 rounded-lg p-4">
-                    <p class="text-gray-400 text-xs">XRP Price (Live)</p>
-                    <p class="text-2xl font-bold text-green-400" id="liveXrpPrice">$--.--</p>
-                </div>
-                <div class="bg-gray-800/80 rounded-lg p-4">
-                    <p class="text-gray-400 text-xs">Total ETF AUM</p>
-                    <p class="text-2xl font-bold text-blue-400" id="liveTotalAum">$--.--</p>
-                </div>
-                <div class="bg-gray-800/80 rounded-lg p-4">
-                    <p class="text-gray-400 text-xs">XRP Locked</p>
-                    <p class="text-2xl font-bold text-purple-400" id="liveXrpLocked">---M</p>
-                </div>
-                <div class="bg-gray-800/80 rounded-lg p-4">
-                    <p class="text-gray-400 text-xs">% of Supply Locked</p>
-                    <p class="text-2xl font-bold text-cyan-400" id="liveSupplyPct">--%</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- LIVE FUND TABLE -->
-        <div class="bg-gray-800 rounded-lg p-6 mb-8 overflow-x-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold">US XRP ETFs — Live Comparison</h2>
-                <span class="text-gray-500 text-xs">click a header to sort</span>
-            </div>
-            <table class="w-full text-sm" id="fundTable">
-                <thead>
-                    <tr class="text-gray-400 border-b border-gray-700">
-                        <th class="sortable text-left py-2 pr-4" onclick="sortTable('ticker')">Ticker</th>
-                        <th class="sortable text-left py-2 pr-4" onclick="sortTable('issuer')">Issuer</th>
-                        <th class="sortable text-right py-2 px-4" onclick="sortTable('aum')">AUM ($M)</th>
-                        <th class="sortable text-right py-2 px-4" onclick="sortTable('share')">Share</th>
-                        <th class="sortable text-right py-2 px-4" onclick="sortTable('locked')">XRP Locked (M)</th>
-                        <th class="sortable text-right py-2 px-4" onclick="sortTable('fee')">Fee</th>
-                        <th class="text-right py-2 pl-4">$/yr per $10k</th>
-                    </tr>
-                </thead>
-                <tbody id="fundTableBody"></tbody>
-            </table>
-            <p class="text-gray-500 text-xs mt-3">BITW is the Bitwise 10 Crypto Index (only partial XRP weighting) — included for completeness, not a pure-play XRP fund.</p>
-        </div>
-
-        <!-- ETF Breakdown charts -->
-        <div class="grid md:grid-cols-2 gap-8 mb-8">
-            <div class="bg-gray-800 rounded-lg p-6">
-                <h2 class="text-xl font-semibold mb-4">XRP ETF Market Share</h2>
-                <canvas id="pieChart" height="220"></canvas>
-            </div>
-            <div class="bg-gray-800 rounded-lg p-6">
-                <h2 class="text-xl font-semibold mb-4">Individual XRP ETF AUM ($M)</h2>
-                <canvas id="barChart" height="220"></canvas>
-            </div>
-        </div>
-
         <!-- PRICE PROJECTION SLIDER -->
         <div class="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-blue-500/50 rounded-lg p-6 mb-8">
             <h2 class="text-xl font-semibold mb-2 text-center">📈 XRP Price Projection Model</h2>
@@ -195,6 +137,64 @@
                 <p class="text-gray-500 text-xs">• <span class="text-blue-400">Moderate (6%)</span>: Similar to Bitcoin ETF impact adjusted for XRP's smaller market cap</p>
                 <p class="text-gray-500 text-xs">• <span class="text-green-400">Aggressive (12%)</span>: Supply squeeze scenario - limited liquid supply amplifies demand</p>
                 <p class="text-gray-600 text-xs mt-2 italic">These are illustrative scenarios, not forecasts. The model compounds price by the chosen rate for each $1B of net new AUM above today's level.</p>
+            </div>
+        </div>
+
+        <!-- LIVE HEADER STATS -->
+        <div class="bg-gradient-to-r from-green-900/50 to-blue-900/50 border border-green-500/50 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-center">📊 Live XRP ETF Data</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="bg-gray-800/80 rounded-lg p-4">
+                    <p class="text-gray-400 text-xs">XRP Price (Live)</p>
+                    <p class="text-2xl font-bold text-green-400" id="liveXrpPrice">$--.--</p>
+                </div>
+                <div class="bg-gray-800/80 rounded-lg p-4">
+                    <p class="text-gray-400 text-xs">Total ETF AUM</p>
+                    <p class="text-2xl font-bold text-blue-400" id="liveTotalAum">$--.--</p>
+                </div>
+                <div class="bg-gray-800/80 rounded-lg p-4">
+                    <p class="text-gray-400 text-xs">XRP Locked</p>
+                    <p class="text-2xl font-bold text-purple-400" id="liveXrpLocked">---M</p>
+                </div>
+                <div class="bg-gray-800/80 rounded-lg p-4">
+                    <p class="text-gray-400 text-xs">% of Supply Locked</p>
+                    <p class="text-2xl font-bold text-cyan-400" id="liveSupplyPct">--%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIVE FUND TABLE -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-8 overflow-x-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">US XRP ETFs — Live Comparison</h2>
+                <span class="text-gray-500 text-xs">click a header to sort</span>
+            </div>
+            <table class="w-full text-sm" id="fundTable">
+                <thead>
+                    <tr class="text-gray-400 border-b border-gray-700">
+                        <th class="sortable text-left py-2 pr-4" onclick="sortTable('ticker')">Ticker</th>
+                        <th class="sortable text-left py-2 pr-4" onclick="sortTable('issuer')">Issuer</th>
+                        <th class="sortable text-right py-2 px-4" onclick="sortTable('aum')">AUM ($M)</th>
+                        <th class="sortable text-right py-2 px-4" onclick="sortTable('share')">Share</th>
+                        <th class="sortable text-right py-2 px-4" onclick="sortTable('locked')">XRP Locked (M)</th>
+                        <th class="sortable text-right py-2 px-4" onclick="sortTable('fee')">Fee</th>
+                        <th class="text-right py-2 pl-4">$/yr per $10k</th>
+                    </tr>
+                </thead>
+                <tbody id="fundTableBody"></tbody>
+            </table>
+            <p class="text-gray-500 text-xs mt-3">BITW is the Bitwise 10 Crypto Index (only partial XRP weighting) — included for completeness, not a pure-play XRP fund.</p>
+        </div>
+
+        <!-- ETF Breakdown charts -->
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">XRP ETF Market Share</h2>
+                <canvas id="pieChart" height="220"></canvas>
+            </div>
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Individual XRP ETF AUM ($M)</h2>
+                <canvas id="barChart" height="220"></canvas>
             </div>
         </div>
 
@@ -283,10 +283,13 @@
         // App version — bump on every deploy and update version.json to match.
         const APP_VERSION = "5.1.0";
 
-        // BTC / ETH ETF totals for the comparison chart (update periodically).
-        const BTC_ETF_AUM_B = 77.6;
-        const ETH_ETF_AUM_B = 8.6;
-        const COMPARE_AS_OF = "BTC ~$77.6B, ETH ~$8.6B — US spot ETF AUM as of ~10 Jun 2026 (SoSoValue / The Block).";
+        // BTC / ETH ETF comparison: AUM now tracks live price via token holdings.
+        // Holdings calibrated ~14 Jun 2026: BTC ETFs ~$77.6B at BTC ~$63,750; ETH ETFs ~$9.8B at ETH ~$1,566.
+        const BTC_ETF_HOLDINGS = 1217000;  // BTC held across US spot ETFs (approx)
+        const ETH_ETF_HOLDINGS = 6250000;  // ETH held across US spot ETFs (approx)
+        const COMPARE_AS_OF = "BTC/ETH AUM computed live: ETF token holdings × current CoinGecko price (holdings ≈ 14 Jun 2026 snapshot).";
+        function btcEtfAumB() { return btcPrice * BTC_ETF_HOLDINGS / 1e9; }
+        function ethEtfAumB() { return ethPrice * ETH_ETF_HOLDINGS / 1e9; }
 
         // Master fund list. fee = expense ratio %. aum & locked in $M / M tokens.
         // Defaults are "last known" snapshots (~13 Jun 2026); live fetch overwrites them.
@@ -321,10 +324,13 @@
         // ============================================================
         // DATA FETCHING
         // ============================================================
+        let btcPrice = 63750, ethPrice = 1566; // live-updated from CoinGecko; values are calibration fallbacks
         async function fetchXRPPrice() {
             try {
-                const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd');
+                const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ripple,bitcoin,ethereum&vs_currencies=usd');
                 const d = await r.json();
+                if (d.bitcoin && d.bitcoin.usd) btcPrice = d.bitcoin.usd;
+                if (d.ethereum && d.ethereum.usd) ethPrice = d.ethereum.usd;
                 if (d.ripple && d.ripple.usd) return d.ripple.usd;
             } catch (e) { console.error('price fetch failed', e); }
             return null;
@@ -516,8 +522,8 @@
             $('xrpEtfComparison').textContent = '$' + totalAumB().toFixed(2) + 'B';
             const leader = [...ETFS].sort((a, b) => b.aum - a.aum)[0];
             $('xrpLeaderNote').textContent = `${leader.ticker} leads with $${leader.aum.toFixed(0)}M (${(leader.aum / tot * 100).toFixed(0)}%)`;
-            $('btcAumCard').textContent = '$' + BTC_ETF_AUM_B + 'B';
-            $('ethAumCard').textContent = '$' + ETH_ETF_AUM_B + 'B';
+            $('btcAumCard').textContent = '$' + btcEtfAumB().toFixed(0) + 'B';
+            $('ethAumCard').textContent = '$' + ethEtfAumB().toFixed(1) + 'B';
             $('compareAsOf').textContent = COMPARE_AS_OF;
 
             $('supplyInsight').textContent =
@@ -553,7 +559,7 @@
             cryptoChart = new Chart($('cryptoCompareChart'), {
                 type: 'bar',
                 data: { labels: ['Bitcoin ETFs', 'Ethereum ETFs', 'XRP ETFs'],
-                    datasets: [{ label: 'Total AUM (Billions)', data: [BTC_ETF_AUM_B, ETH_ETF_AUM_B, +totalAumB().toFixed(2)],
+                    datasets: [{ label: 'Total AUM (Billions)', data: [+btcEtfAumB().toFixed(1), +ethEtfAumB().toFixed(1), +totalAumB().toFixed(2)],
                         backgroundColor: ['#f97316', '#a855f7', '#3b82f6'] }] },
                 options: { indexAxis: 'y', responsive: true,
                     scales: { x: { ticks: { color: '#9ca3af', callback: v => '$' + v + 'B' }, grid: { color: '#374151' } },
