@@ -33,8 +33,12 @@
     </style>
 </head>
 <body class="text-white p-6">
+    <div id="updateBanner" class="hidden sticky top-0 z-50 -mx-6 -mt-6 mb-6 bg-blue-600 text-white text-sm px-4 py-2 flex items-center justify-center gap-3">
+        <span id="updateBannerText">A new version is available.</span>
+        <button onclick="window.location.href = location.pathname + '?u=' + Date.now()" class="bg-white text-blue-700 font-semibold px-3 py-1 rounded hover:bg-blue-50">🔄 Refresh now</button>
+    </div>
     <div class="max-w-7xl mx-auto">
-        <h1 class="text-3xl font-bold mb-2 text-center">XRP ETF Tracker Dashboard <span class="text-gray-500 text-lg">v5</span></h1>
+        <h1 class="text-3xl font-bold mb-2 text-center">XRP ETF Tracker Dashboard <span class="text-gray-500 text-lg" id="appVersion">v5</span></h1>
         <p class="text-gray-400 text-center mb-2">US Spot ETFs | Live per-fund data, fees & price projections</p>
 
         <!-- Data source status -->
@@ -276,10 +280,13 @@
         const TOTAL_XRP_SUPPLY_M = 99986; // ~100B XRP, in millions
         const DAILY_INFLOW_B = 0.0164;    // assumed net daily inflow, $B (used for milestone ETA)
 
+        // App version — bump on every deploy and update version.json to match.
+        const APP_VERSION = "5.1.0";
+
         // BTC / ETH ETF totals for the comparison chart (update periodically).
-        const BTC_ETF_AUM_B = 114;
-        const ETH_ETF_AUM_B = 18;
-        const COMPARE_AS_OF = "BTC/ETH figures as of Jan 2026 — update in CONFIG when stale.";
+        const BTC_ETF_AUM_B = 77.6;
+        const ETH_ETF_AUM_B = 8.6;
+        const COMPARE_AS_OF = "BTC ~$77.6B, ETH ~$8.6B — US spot ETF AUM as of ~10 Jun 2026 (SoSoValue / The Block).";
 
         // Master fund list. fee = expense ratio %. aum & locked in $M / M tokens.
         // Defaults are "last known" snapshots (~13 Jun 2026); live fetch overwrites them.
@@ -654,10 +661,30 @@
             renderAll();
         }
 
+        // ----- version / update check -----
+        // Fetches version.json from the same origin (cache-busted). If its version
+        // differs from APP_VERSION baked into this file, a stale tab is open -> banner.
+        async function checkForUpdate() {
+            try {
+                const r = await fetch('version.json?cb=' + Date.now(), { cache: 'no-store' });
+                if (!r.ok) return;
+                const d = await r.json();
+                if (d && d.version && d.version !== APP_VERSION) {
+                    const b = $('updateBanner');
+                    $('updateBannerText').textContent =
+                        `A new version (v${d.version}) is available — you're viewing v${APP_VERSION}.`;
+                    b.classList.remove('hidden');
+                }
+            } catch (e) { /* offline or no version.json — ignore */ }
+        }
+
         // ----- init -----
+        $('appVersion').textContent = 'v' + APP_VERSION;
         slider.addEventListener('input', updateProjection);
         renderAll();      // render defaults immediately
         fetchLiveData();  // then refresh from live sources
+        checkForUpdate(); // check for a newer deployed version
+        setInterval(checkForUpdate, 5 * 60 * 1000); // re-check every 5 minutes
     </script>
 </body>
 </html>
