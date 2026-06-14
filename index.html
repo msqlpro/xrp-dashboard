@@ -189,6 +189,28 @@
             </div>
         </div>
 
+        <!-- Trend & Positioning -->
+        <div class="bg-gray-800 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-1">30-Day Trend &amp; Positioning</h2>
+            <p class="text-gray-500 text-xs mb-4">How ETF assets have moved recently, and how leveraged futures positioning compares with actual ETF holdings.</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <div class="flex items-baseline justify-between mb-2">
+                        <span class="text-gray-400 text-sm">Total ETF AUM — last 30 days</span>
+                        <span class="text-sm font-semibold text-gray-400" id="trendDelta">—</span>
+                    </div>
+                    <canvas id="trendChart" height="90"></canvas>
+                    <p class="text-gray-600 text-xs mt-2">Each point is one day's total ETF AUM from your tracker. A rising line means assets are accumulating; a falling line can reflect outflows <em>or</em> a lower XRP price (AUM moves with both). Watch it alongside the price — AUM holding while price drops is the accumulation signal.</p>
+                </div>
+                <div class="bg-gray-700/40 rounded-lg p-4 flex flex-col justify-center">
+                    <p class="text-gray-400 text-xs">Futures OI ÷ ETF AUM</p>
+                    <p class="text-3xl font-bold text-amber-400" id="oiRatio">—</p>
+                    <p class="text-gray-500 text-xs mt-1" id="oiValues">—</p>
+                    <p class="text-gray-600 text-xs mt-3">Open interest is the dollar value of all open XRP futures contracts. Above ~1.0x, leveraged derivatives positioning is larger than physical ETF holdings — more speculative and more prone to liquidation-driven swings. Below ~1.0x leans toward spot-driven, "stickier" demand.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- LIVE FUND TABLE -->
         <div class="bg-gray-800 rounded-lg p-6 mb-8 overflow-x-auto">
             <div class="flex justify-between items-center mb-4">
@@ -281,7 +303,7 @@
         const DAILY_INFLOW_B = 0.0164;    // assumed net daily inflow, $B (used for milestone ETA)
 
         // App version — bump on every deploy and update version.json to match.
-        const APP_VERSION = "5.2.0";
+        const APP_VERSION = "5.3.0";
 
         // BTC / ETH ETF comparison: AUM now tracks live price via token holdings.
         // Holdings calibrated ~14 Jun 2026: BTC ETFs ~$77.6B at BTC ~$63,750; ETH ETFs ~$9.8B at ETH ~$1,566.
@@ -306,6 +328,20 @@
 
         // Live state
         let currentPrice = 1.1452;        // updated from CoinGecko / sheet
+        let futuresOI = 870.8;            // XRP futures open interest, $M (from sheet)
+        // 30-day Total ETF AUM history ($M), seeded from the sheet; live fetch overwrites.
+        let aumHistory = [
+            {date:'05-17',aum:1279.9},{date:'05-18',aum:1275.2},{date:'05-19',aum:1275.2},
+            {date:'05-20',aum:1238.0},{date:'05-21',aum:1211.0},{date:'05-22',aum:1227.0},
+            {date:'05-23',aum:1235.2},{date:'05-24',aum:1235.2},{date:'05-25',aum:1208.0},
+            {date:'05-26',aum:1208.0},{date:'05-27',aum:1208.0},{date:'05-28',aum:1208.0},
+            {date:'05-29',aum:1208.0},{date:'05-30',aum:1208.0},{date:'05-31',aum:1208.0},
+            {date:'06-01',aum:1208.0},{date:'06-02',aum:1208.0},{date:'06-03',aum:1208.0},
+            {date:'06-04',aum:1208.0},{date:'06-05',aum:1208.0},{date:'06-06',aum:1208.0},
+            {date:'06-07',aum:1208.0},{date:'06-08',aum:1208.0},{date:'06-09',aum:1208.0},
+            {date:'06-10',aum:1060.9},{date:'06-11',aum:1060.9},{date:'06-12',aum:1060.9},
+            {date:'06-13',aum:1060.9},{date:'06-14',aum:1060.9}
+        ];
         let xrpPerBillion = 1000 / currentPrice; // M XRP per $1B at current price (was hardcoded 543)
 
         // ============================================================
@@ -422,6 +458,28 @@
                         const tot = totalAumM();
                         if (tot > 0) ETFS.forEach(e => { e.locked = +(tl / 1e6 * (e.aum / tot)).toFixed(1); });
                     }
+                }
+
+                // Futures open interest (last row, $ -> $M)
+                if ('futures open interest' in fullIndex) {
+                    const o = num(last[fullIndex['futures open interest']]);
+                    if (o != null) futuresOI = o / 1e6;
+                }
+
+                // Build Total ETF AUM history for the trend sparkline (last 30 rows)
+                if ('total aum' in fullIndex) {
+                    const ti = fullIndex['total aum'], di = fullIndex['date'];
+                    const hist = [];
+                    for (let i = 1; i < rows.length; i++) {
+                        const r = rows[i];
+                        if (!r || r.length < 2) continue;
+                        const a = num(r[ti]);
+                        if (a == null) continue;
+                        let d = (di != null && r[di]) ? String(r[di]) : '';
+                        if (d.length >= 10) d = d.slice(5); // MM-DD
+                        hist.push({ date: d, aum: a / 1e6 });
+                    }
+                    if (hist.length >= 2) aumHistory = hist.slice(-30);
                 }
 
                 if (matched >= 3) {
@@ -548,7 +606,7 @@
             $('milestoneNote').textContent = `ETAs assume ~$${(DAILY_INFLOW_B * 1000).toFixed(0)}M net daily inflow (editable in CONFIG). Current total: $${tot.toFixed(2)}B.`;
         }
 
-        let cryptoChart, pieChart, barChart;
+        let cryptoChart, pieChart, barChart, trendChart;
         function renderCharts() {
             const ordered = [...ETFS].sort((a, b) => b.aum - a.aum);
             const labels = ordered.map(e => e.ticker);
@@ -633,10 +691,49 @@
             $('sliderMinLabel').innerHTML = '$' + cur.toFixed(1) + 'B<br/><span class="text-blue-400">Current</span>';
         }
 
+        function renderTrend() {
+            const dEl = $('trendDelta');
+            if (!aumHistory || aumHistory.length < 2) {
+                if (trendChart) { trendChart.destroy(); trendChart = null; }
+                dEl.textContent = '—';
+                return;
+            }
+            const labels = aumHistory.map(p => p.date);
+            const data = aumHistory.map(p => +p.aum.toFixed(1));
+            const first = data[0], lastv = data[data.length - 1];
+            const pct = first > 0 ? (lastv - first) / first * 100 : 0;
+            const up = pct >= 0;
+            dEl.textContent = (up ? '+' : '') + pct.toFixed(1) + '% over ' + data.length + 'd';
+            dEl.className = 'text-sm font-semibold ' + (up ? 'text-green-400' : 'text-red-400');
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart($('trendChart'), {
+                type: 'line',
+                data: { labels, datasets: [{ data, borderColor: up ? '#22c55e' : '#f87171',
+                    backgroundColor: 'rgba(59,130,246,0.08)', fill: true, tension: 0.3,
+                    pointRadius: 0, borderWidth: 2 }] },
+                options: { responsive: true,
+                    plugins: { legend: { display: false },
+                        tooltip: { callbacks: { title: c => c[0].label, label: c => '$' + c.parsed.y.toFixed(0) + 'M' } } },
+                    scales: { x: { display: false },
+                        y: { ticks: { color: '#9ca3af', callback: v => '$' + v + 'M' }, grid: { color: '#374151' } } } }
+            });
+        }
+
+        function renderOI() {
+            const aum = totalAumM();
+            if (!futuresOI || aum <= 0) { $('oiRatio').textContent = '—'; $('oiValues').textContent = '—'; return; }
+            const ratio = futuresOI / aum;
+            $('oiRatio').textContent = ratio.toFixed(2) + 'x';
+            $('oiRatio').className = 'text-3xl font-bold ' + (ratio >= 1 ? 'text-red-400' : 'text-amber-400');
+            $('oiValues').textContent = '$' + futuresOI.toFixed(0) + 'M OI vs $' + aum.toFixed(0) + 'M ETF AUM';
+        }
+
         function renderAll() {
             renderHeaderStats();
             renderTable();
             renderCharts();
+            renderTrend();
+            renderOI();
             renderMilestones();
             syncSlider();
             updateProjection();
